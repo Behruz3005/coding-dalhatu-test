@@ -96,7 +96,7 @@
                                     </button>
 
                                     <button
-                                            @click="clearAllStandards"
+                                            @click="printStandards"
                                             class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-red-200 hover:bg-red-100 hover:text-red-500"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-3">
@@ -118,7 +118,7 @@
                                     </div>
                                     <div>
                                         <a
-                                            @click.prevent="removeStandard"
+                                            @click.prevent="removeStandard(index)"
                                             href="#"
                                             class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-red-200 hover:bg-red-100 hover:text-red-500"
                                         >
@@ -173,6 +173,11 @@
             PlusSmallIcon,
             Grades
         },
+        data() {
+            return {
+                standards: [],
+            }
+        },
         computed: {
             ...mapState({
                 selectedStandards: state => state.standards.items
@@ -181,9 +186,34 @@
         methods: {
             // Implement these methods:
 
-            removeStandard () {},
-            clearAllStandards () {},
-            copyStandards () {}
+            removeStandard (index) {
+                this.$store.dispatch('standards/removeAStandard', index)
+            },
+            clearAllStandards () {
+                this.$store.dispatch('standards/clearAllStandards')
+            },
+            copyStandards () {
+                navigator.clipboard.writeText(JSON.stringify(this.selectedStandards))
+            },
+            printStandards () {
+              let elem = document.createElement('div');
+              for(let i=0;i<this.selectedStandards.length;i++) {
+                  let h4 = document.createElement('h4');
+                  h4.innerText = this.selectedStandards[i].code;
+                  elem.appendChild(h4)
+                  let p = document.createElement('p');
+                  p.innerText = this.selectedStandards[i].description;
+                  elem.appendChild(p);
+              }
+                var divContents = elem.innerHTML;
+                var a = window.open('', '', 'height=500, width=500');
+                a.document.write('<html>');
+                a.document.write('<body > <h1>Standards  <br>');
+                a.document.write(divContents);
+                a.document.write('</body></html>');
+                a.document.close();
+                a.print();
+            },
         },
         created() {
             this.standards = standards;
